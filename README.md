@@ -9,4 +9,5 @@ This tool is build using hexagonal architecture with following structure
         |--- domain/  # implementation of business logic
         |--- entrypoints/  # primary adapters, entry points
         |--- ports/  # abstractions for adapters
+        |--- helpers/  # modules containing helpers functions, configurations
     |--- tests/  # package tests
