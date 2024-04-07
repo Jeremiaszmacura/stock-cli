@@ -2,7 +2,7 @@ import logging
 import typer
 from typing_extensions import Annotated
 
-from src.helpers.logger import logger
+from helpers.logger import logger
 
 
 app = typer.Typer(help="CLI Application for analyzing stock data.")

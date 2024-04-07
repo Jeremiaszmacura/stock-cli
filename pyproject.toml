@@ -29,7 +29,7 @@ qa = [
 ]
 
 [project.scripts]
-stock-cli-app = "src.entrypoints.cli_entrypoint:app"
+stock-cli-app = "entrypoints.cli_entrypoint:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
