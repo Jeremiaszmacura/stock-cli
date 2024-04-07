@@ -30,7 +30,8 @@ qa = [
     "pre-commit==3.7.0",
 ]
 upload = [
-    "twine==5.0.0"
+    "build==1.2.1",
+    "twine==5.0.0",
 ]
 
 [project.scripts]

@@ -56,6 +56,7 @@ twine upload dist/*
 
 ```sh
 git tag -a <version> -m <message>
+git push origin <tag-version>
 ```
 
 ## Run CLI app
