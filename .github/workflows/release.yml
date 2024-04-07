@@ -18,7 +18,9 @@ jobs:
       - name: Install upload deps
         run: pip install '.[upload]'
 
-      - name: Run pre-commit
+      - name: Upload to PyPi
         run: |
+          export TWINE_USERNAME=__token__
+          export TWINE_PASSWORD=${{ secrets.PYPI }}
           python -m build
           twine upload dist/*
