@@ -4,4 +4,4 @@ import datetime
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename=f'loggs/{datetime.datetime.now()}-stock-app.log', level=logging.INFO)
+logging.basicConfig(filename=f"loggs/{datetime.datetime.now()}-stock-app.log", level=logging.INFO)
