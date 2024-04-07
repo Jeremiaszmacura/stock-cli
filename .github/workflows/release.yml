@@ -10,7 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-# Instead of setup Python and pip install there should be Docker container pulled with preinstalled deps
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
