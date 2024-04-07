@@ -38,16 +38,30 @@ python -m pip install .
 python -m pip install --editable .
 ```
 
-## Install DEV dependecies
+## Build package source (.tar.gz) and built (.whl) distribution
 
 ```sh
-python -m pip install -r requirements-dev.txt
+python -m build
+```
+
+## Upload package discribution to pypi
+
+```sh
+export TWINE_USERNAME=__token__
+export TWINE_PASSWORD=<my-twine-api-token>
+twine upload dist/*
+```
+
+## New git tag
+
+```sh
+git tag -a <version> -m <message>
 ```
 
 ## Run CLI app
 
 ```sh
-python src/entrypoints/cli_entrypoint.py
+stock-cli-app --help
 ```
 
 ## Run pre-commit
