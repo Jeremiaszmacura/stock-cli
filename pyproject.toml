@@ -39,3 +39,7 @@ stock-cli-app = "entrypoints.cli_entrypoint:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.urls]
+documentation = "https://jeremiaszmacura.github.io/stock-hexagonal-app/"
+source = "https://github.com/Jeremiaszmacura/stock-hexagonal-app"
