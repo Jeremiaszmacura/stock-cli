@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-version = "0.1.3"
+version = "0.1.6"
 name = "stock-hexagonal-app"
 authors = [
     {name = "Jeremiasz Macura", email = "jeremiaszmacura99@gmail.com"},
