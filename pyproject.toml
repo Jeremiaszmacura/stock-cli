@@ -39,3 +39,6 @@ stock-cli-app = "entrypoints.cli_entrypoint:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools-git-versioning]
+enabled = true
