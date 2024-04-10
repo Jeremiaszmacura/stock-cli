@@ -1,6 +1,6 @@
 import pandas
 
-from src.ports.stock_data_provider import StockDataProvider
+from ports.stock_data_provider import StockDataProvider
 
 
 class AlphaVantage(StockDataProvider):
@@ -15,14 +15,14 @@ class AlphaVantage(StockDataProvider):
         time_interval = time_interval
         company_data = company_data
 
-    def prepare_search_result_data(data: list[dict]) -> list[dict]:
+    def prepare_search_result_data(self, data: list[dict]) -> list[dict]:
         pass
 
-    def prepare_data(data: pandas.DataFrame) -> pandas.DataFrame:
+    def prepare_data(self, data: pandas.DataFrame) -> pandas.DataFrame:
         pass
 
-    def search_for_company(search_phrase: str) -> None:
-        pass
+    def search_for_company(self, search_phrase: str) -> None:
+        print("Search for company ADAPTER")
 
-    def get_company_data() -> None:
+    def get_company_data(self) -> None:
         pass

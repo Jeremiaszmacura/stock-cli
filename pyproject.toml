@@ -36,7 +36,7 @@ upload = [
 ]
 
 [project.scripts]
-stock-cli-app = "entrypoints.cli_entrypoint:app"
+stock-hexagonal-app = "entrypoints.cli_entrypoint:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
