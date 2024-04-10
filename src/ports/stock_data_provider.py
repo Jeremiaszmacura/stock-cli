@@ -13,18 +13,18 @@ class StockDataProvider:
     time_interval: str | None = None
     company_data: pandas.DataFrame | None = None
 
-    def prepare_search_result_data(self, data: list[dict]) -> list[dict]:
+    def _prepare_search_result_data(self, data: dict) -> list[dict]:
         """Method to prepare search result data to display it in a target format.
 
         Args:
-            data (list[dict]): Search result data in stock data provider format.
+            data dict: Search result data in stock data provider format.
 
         Returns:
             list[dict]: Search result data in target format.
         """
         pass
 
-    def prepare_data(self, data: pandas.DataFrame) -> pandas.DataFrame:
+    def _prepare_data(self, data: pandas.DataFrame) -> pandas.DataFrame:
         """Method to prepare company's stock data for futher calculations.
 
         Args:
@@ -35,7 +35,7 @@ class StockDataProvider:
         """
         pass
 
-    def search_for_company(self, search_phrase: str) -> None:
+    def search_for_company(self, search_phrase: str) -> list[dict]:
         """Method to search for company based on search phrase.
 
         Args:
@@ -43,6 +43,6 @@ class StockDataProvider:
         """
         pass
 
-    def get_company_data(self) -> None:
+    def get_company_data(self) -> dict:
         """Method used to get company stock data."""
         pass

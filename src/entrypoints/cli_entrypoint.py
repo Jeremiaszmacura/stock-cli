@@ -1,11 +1,16 @@
 import logging
 import typer
+import keyring
+import getpass
 from typing_extensions import Annotated
 from enum import Enum
 
 from helpers.logger import logger
-from domain.command_handler import search_for_company_handler
+from domain.command_handler import search_for_company_handler, draw_stock_graph_handler
 from adapters.alpha_vantage_adapter import AlphaVantage
+
+
+APP_NAME = "stock_hexagonal_app"
 
 
 class AvailableStockDataProviders(str, Enum):
@@ -16,6 +21,21 @@ app = typer.Typer(help="CLI Application for analyzing stock data.")
 
 statistics_app = typer.Typer()
 app.add_typer(statistics_app, name="count-statistics", help="Calculate selected statistics.")
+
+
+@app.command()
+def store_api_key(
+    stock_data_provider: Annotated[
+        AvailableStockDataProviders,
+        typer.Option(
+            "--stock-data-provider",
+            "-stp",
+            case_sensitive=False,
+        ),
+    ] = AvailableStockDataProviders.alpha_vantage,
+):
+    api_key: str = getpass.getpass(prompt="Provide your API Key:\n")
+    keyring.set_password(stock_data_provider.value, APP_NAME, api_key)
 
 
 @app.command()
@@ -40,9 +60,10 @@ def search_for_company(
 ):
     if debug:
         logger.setLevel(logging.DEBUG)
-    print(f"Searching for comapny by phrase: {phrase}")
+    logger.debug("Searching for comapny by phrase: {phrase}")
+    api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
     if stock_data_provider == AvailableStockDataProviders.alpha_vantage:
-        selected_stock_data_provider = AlphaVantage()
+        selected_stock_data_provider = AlphaVantage(auth_token=api_key)
     search_for_company_handler(selected_stock_data_provider, phrase)
 
 
@@ -56,11 +77,23 @@ def draw_stock_graph(
             help="Company stock symbol.",
         ),
     ],
+    stock_data_provider: Annotated[
+        AvailableStockDataProviders,
+        typer.Option(
+            "--stock-data-provider",
+            "-stp",
+            case_sensitive=False,
+        ),
+    ] = AvailableStockDataProviders.alpha_vantage,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
     if debug:
         logger.setLevel(logging.DEBUG)
-    print(f"Drawing stock graph for comapny: {company_symbol}")
+    logger.debug(f"Drawing stock graph for comapny: {company_symbol}")
+    if stock_data_provider == AvailableStockDataProviders.alpha_vantage:
+        selected_stock_data_provider = AlphaVantage(auth_token=api_key, company_symbol=company_symbol)
+    api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
+    draw_stock_graph_handler(selected_stock_data_provider)
 
 
 @statistics_app.command()
@@ -73,11 +106,19 @@ def value_at_risk(
             help="Company stock symbol.",
         ),
     ],
+    stock_data_provider: Annotated[
+        AvailableStockDataProviders,
+        typer.Option(
+            "--stock-data-provider",
+            "-stp",
+            case_sensitive=False,
+        ),
+    ] = AvailableStockDataProviders.alpha_vantage,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
     if debug:
         logger.setLevel(logging.DEBUG)
-    print(f"Calculating value at risk for: {company_symbol}")
+    logger.debug(f"Calculating value at risk for: {company_symbol}")
 
 
 if __name__ == "__main__":

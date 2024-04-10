@@ -20,7 +20,10 @@ classifiers = [
 ]
 dependencies = [
     "typer==0.12.1",
+    "numpy==1.26.4",
     "pandas==2.2.1",
+    "matplotlib==3.8.4",
+    "keyring==25.1.0",
 ]
 
 [project.optional-dependencies]
