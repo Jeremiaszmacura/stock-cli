@@ -2,6 +2,10 @@ name: quality-assurance
 
 on:
   push:
+    tags-ignore:
+      - '**'
+    branches:
+      - '**'
 
 jobs:
   qa:
