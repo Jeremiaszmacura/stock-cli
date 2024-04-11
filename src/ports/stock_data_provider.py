@@ -24,11 +24,11 @@ class StockDataProvider:
         """
         pass
 
-    def _prepare_data(self, data: pandas.DataFrame) -> pandas.DataFrame:
+    def _prepare_data(self, data: bytes) -> pandas.DataFrame:
         """Method to prepare company's stock data for futher calculations.
 
         Args:
-            data (pandas.DataFrame): Company's stock data in stock data provider format.
+            data (bytes): Company's stock data in stock data provider format.
 
         Returns:
             pandas.DataFrame: Company's stock data in target format.
@@ -43,6 +43,6 @@ class StockDataProvider:
         """
         pass
 
-    def get_company_data(self) -> dict:
+    def get_company_data(self) -> pandas.DataFrame:
         """Method used to get company stock data."""
         pass

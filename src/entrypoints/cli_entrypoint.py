@@ -7,6 +7,7 @@ from enum import Enum
 
 from helpers.logger import logger
 from domain.command_handler import search_for_company_handler, draw_stock_graph_handler
+from domain.plot_data import PlotTypes
 from adapters.alpha_vantage_adapter import AlphaVantage
 
 
@@ -85,15 +86,21 @@ def draw_stock_graph(
             case_sensitive=False,
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
+    plot_type: Annotated[
+        PlotTypes,
+        typer.Option(
+            case_sensitive=False,
+        ),
+    ] = PlotTypes.linear_plot,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
     if debug:
         logger.setLevel(logging.DEBUG)
     logger.debug(f"Drawing stock graph for comapny: {company_symbol}")
+    api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
     if stock_data_provider == AvailableStockDataProviders.alpha_vantage:
         selected_stock_data_provider = AlphaVantage(auth_token=api_key, company_symbol=company_symbol)
-    api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
-    draw_stock_graph_handler(selected_stock_data_provider)
+    draw_stock_graph_handler(selected_stock_data_provider, plot_type)
 
 
 @statistics_app.command()
