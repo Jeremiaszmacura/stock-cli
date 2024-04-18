@@ -7,6 +7,6 @@ def search_for_company_handler(stock_data_provider: StockDataProvider, search_ph
     print(search_results)
 
 
-def draw_stock_graph_handler(stock_data_provider: StockDataProvider, plot_type: PlotTypes) -> None:
+def draw_stock_graph_handler(stock_data_provider: StockDataProvider, plot_type: PlotTypes, company_symbol: str) -> None:
     stock_data = stock_data_provider.get_company_data()
-    plot_data(data=stock_data, plot_type=plot_type)
+    plot_data(data=stock_data, plot_type=plot_type, company_symbol=company_symbol)

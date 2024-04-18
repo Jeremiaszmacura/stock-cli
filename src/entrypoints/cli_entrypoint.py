@@ -32,9 +32,15 @@ def store_api_key(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
+            help="Select stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
 ):
+    """CLI command used to store auth token / api key to be reused in other CLI commands.
+
+    Args:
+        stock_data_provider (AvailableStockDataProviders): Stock data provider.
+    """
     api_key: str = getpass.getpass(prompt="Provide your API Key:\n")
     keyring.set_password(stock_data_provider.value, APP_NAME, api_key)
 
@@ -55,10 +61,18 @@ def search_for_company(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
+            help="Select stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
+    """CLI command used to search for a company by provided phrase.
+
+    Args:
+        phrase (str): phrase used to search for copmany.
+        stock_data_provider (AvailableStockDataProviders): Stock data provider.
+        debug (bool): Switch logging debug mode.
+    """
     if debug:
         logger.setLevel(logging.DEBUG)
     logger.debug("Searching for comapny by phrase: {phrase}")
@@ -84,6 +98,7 @@ def draw_stock_graph(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
+            help="Select stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
     plot_type: Annotated[
@@ -94,13 +109,21 @@ def draw_stock_graph(
     ] = PlotTypes.linear_plot,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
+    """CLI command used to plot chart for selected company.
+
+    Args:
+        company_symbol (str): Company stock symbol.
+        stock_data_provider (AvailableStockDataProviders): Stock data provider.
+        plot_type (PlotTypes): Plot type.
+        debug (bool): Switch logging debug mode.
+    """
     if debug:
         logger.setLevel(logging.DEBUG)
     logger.debug(f"Drawing stock graph for comapny: {company_symbol}")
     api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
     if stock_data_provider == AvailableStockDataProviders.alpha_vantage:
         selected_stock_data_provider = AlphaVantage(auth_token=api_key, company_symbol=company_symbol)
-    draw_stock_graph_handler(selected_stock_data_provider, plot_type)
+    draw_stock_graph_handler(selected_stock_data_provider, plot_type, company_symbol)
 
 
 @statistics_app.command()
@@ -119,10 +142,18 @@ def value_at_risk(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
+            help="Select stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
+    """CLI command used to calculate Value at Risk for selected company.
+
+    Args:
+        company_symbol (str): Company stock symbol.
+        stock_data_provider (AvailableStockDataProviders): Stock data provider.
+        debug (bool): Switch logging debug mode.
+    """
     if debug:
         logger.setLevel(logging.DEBUG)
     logger.debug(f"Calculating value at risk for: {company_symbol}")
