@@ -10,6 +10,12 @@ class PlotTypes(str, Enum):
 
 
 def linear_plot(data: pandas.DataFrame, ax):
+    """Draw linear type of plot based on received stock data.
+
+    Args:
+        data (pandas.DataFrame): Stock data.
+        ax (_type_): matplotlib ax.
+    """
     shift = numpy.linspace(0, 6)
     for _ in shift:
         ax.plot(data["close"], color="#00ccff", linewidth=0.5)
@@ -17,6 +23,11 @@ def linear_plot(data: pandas.DataFrame, ax):
 
 
 def candle_stick_plot(data: pandas.DataFrame):
+    """Draw candle type of plot based on received stock data.
+
+    Args:
+        data (pandas.DataFrame): Stock data.
+    """
     plt.subplots_adjust(bottom=0.20)
     plt.xticks(rotation=70, fontsize=6)
     plt.yticks(fontsize=8)
