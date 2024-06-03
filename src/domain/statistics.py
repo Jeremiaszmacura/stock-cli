@@ -1,8 +1,10 @@
+"""Module used to calculate numerical statistics."""
 import io
 import datetime
 import numpy
 import pandas
 import base64
+from typing import Generator
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from enum import Enum
@@ -11,43 +13,81 @@ from helpers.logger import logger
 
 
 class ValueAtRiskMethods(str, Enum):
+    """Enumerate data type for calculation Value at Risk methods."""    
     historical_simulation = "historical_simulation"
     linear_model = "linear_model"
     monte_carlo = "monte_carlo"
 
 
-def value_at_risk():
-    logger.debug("Calculating value at risk...")
-
-
 def calculate_returns(data: pandas.Series) -> pandas.Series:
-    """Calculate normalized returns."""
+    """Calculate normalized returns.
+
+    Args:
+        data (pandas.Series): A time series of prices or values.
+
+    Returns:
+        pandas.Series: A time series of the normalized returns.
+    """
+    logger.debug("Calculating time series of the normalized returns.")
     returns = data / data.shift(-1)
     returns = returns.dropna()
     return returns
 
 
 def calculate_log_returns(data: pandas.Series) -> pandas.Series:
-    """Calculate normalized log returns."""
+    """Calculate normalized log returns.
+
+    Args:
+        data (pandas.Series): A time series of prices or values.
+
+    Returns:
+        pandas.Series: A time series of the normalized log returns.
+    """
+    logger.debug("Calculating time series of the normalized log returns.")
     returns = numpy.log(data / data.shift(-1))
     returns = returns.dropna()
     return returns
 
 
-def daterange(start_date, end_date):
+def daterange(start_date: datetime.date, end_date: datetime.date) -> Generator[datetime.date, None, None]:
+    """generates each date from a specified start date up to but not including a specified end date.
+
+    Args:
+        start_date (datetime.date): start date (included).
+        end_date (datetime.date): end date (excluded).
+
+    Yields:
+        Generator[datetime.date, None, None]: yields datetime.date objects for each day.
+    """    
     for n in range(int((end_date - start_date).days)):
         yield start_date + datetime.timedelta(n)
 
 
 def portfolio_historical_var(
-    portfolio_with_data: dict,
+    portfolio_with_data: dict[str, dict[str, pandas.Series]],
     symbol_data: pandas.Series,
     confidence_level: float,
     horizon_days: int,
     date_from: datetime.date,
     date_to: datetime.date,
 ) -> float:
-    portfolio_values = pandas.Series()
+    """Calculate Value at Risk (VaR) using historical simulation method for whole portfolio.
+
+    Args:
+        portfolio_with_data (dict): Dictionary containing portfolio data with symbols as keys and dictionaries as values.
+            Each value dictionary should contain:
+                - "value": float, the current value of the position.
+                - "returns": pandas.Series, historical returns of the symbol.
+        symbol_data (pandas.Series): Historical price data for the symbols in the portfolio.
+        confidence_level (float): Confidence level for VaR calculation (e.g., 0.95 for 95% confidence).
+        horizon_days (int): Time horizon for VaR calculation in days.
+        date_from (datetime.date): Start date for the historical period
+        date_to (datetime.date): End date for the historical period.
+
+    Returns:
+        float: The calculated Value at Risk (VaR) for the portfolio over the given time horizon and confidence level.
+    """    
+    portfolio_values = pandas.Series(dtype=float)
     for day in daterange(date_from, date_to + datetime.timedelta(1)):
         pd_day = pandas.Timestamp(day)
         portfolio_value = 0
@@ -79,7 +119,18 @@ def historical_simulation_var(
     historical_days: int,
     horizon_days: int,
 ) -> float:
-    """Calculate Value at Risk using historical simulation method."""
+    """Calculate Value at Risk (VaR) using the historical simulation method.
+
+    Args:
+        returns (pandas.Series): A time series of historical returns.
+        confidence_level (float): Confidence level for VaR calculation (e.g., 0.95 for 95% confidence).
+        portfolio_value (int | float): The current value of the portfolio.
+        historical_days (int): Number of historical days to consider for the simulation.
+        horizon_days (int): Time horizon for VaR calculation in days.
+
+    Returns:
+        float: The calculated Value at Risk (VaR) for the portfolio over the given time horizon and confidence level.
+    """
     first_return = max(len(returns) - historical_days, 0)
     returns_subset: pandas.Series = returns[first_return:]
     sorted_returns = numpy.sort(returns_subset)
@@ -97,7 +148,18 @@ def linear_model_var(
     historical_days: int,
     horizon_days: int,
 ) -> float:
-    """Calculate Value at Risk using linear model simulation."""
+    """Calculate Value at Risk (VaR) using a linear model simulation.
+
+    Args:
+        returns (pandas.Series): A time series of historical returns.
+        confidence_level (float): Confidence level for VaR calculation (e.g., 0.95 for 95% confidence).
+        portfolio_value (int | float): The current value of the portfolio.
+        historical_days (int): Number of historical days to consider for the simulation.
+        horizon_days (int): Time horizon for VaR calculation in days.
+
+    Returns:
+        float: The calculated Value at Risk (VaR) for the portfolio over the given time horizon and confidence level.
+    """
     first_return = max(len(returns) - historical_days, 0)
     returns_subset: pandas.Series = returns[first_return:]
     # Standard deviation is the statistical measure of market volatility
@@ -115,7 +177,19 @@ def monte_carlo_var(
     horizon_days: int,
     number_of_samples: int = 5000,
 ) -> float:
-    """Calculate Value at Risk using monte carlo simulation."""
+    """Calculate Value at Risk (VaR) using a Monte Carlo simulation.
+
+    Args:
+        returns (pandas.Series): A time series of historical returns.
+        confidence_level (float): Confidence level for VaR calculation (e.g., 0.95 for 95% confidence).
+        portfolio_value (int | float): The current value of the portfolio.
+        historical_days (int): Number of historical days to consider for the simulation.
+        horizon_days (int): Time horizon for VaR calculation in days.
+        number_of_samples (int, optional): Number of Monte Carlo simulation samples to generate. Defaults to 5000.
+
+    Returns:
+        float: The calculated Value at Risk (VaR) for the portfolio over the given time horizon and confidence level.
+    """
     first_return = max(len(returns) - historical_days, 0)
     returns_subset: pandas.Series = returns[first_return:]
     std_dev = numpy.std(returns_subset)
@@ -137,21 +211,49 @@ def calculate_value_at_risk(
     historical_days: int,
     horizon_days: int,
 ) -> float:
-    """Calcualte Value at Risk."""
+    """Calculate Value at Risk (VaR) using the specified method.
+
+    Args:
+        method (str): The method to use for VaR calculation. Options are 'historical_simulation', 'linear_model', or 'monte_carlo'.
+        data (pandas.DataFrame): A dataframe containing historical price data with at least a 'close' column.
+        confidence_level (float): Confidence level for VaR calculation (e.g., 0.95 for 95% confidence).
+        portfolio_value (int | float): The current value of the portfolio.
+        historical_days (int): Number of historical days to consider for the simulation.
+        horizon_days (int): Time horizon for VaR calculation in days.
+
+    Returns:
+        float: The calculated Value at Risk (VaR) for the portfolio over the given time horizon and confidence level.
+    """
     data = data["close"]
     returns = calculate_returns(data)
 
     if method == ValueAtRiskMethods.historical_simulation:
         var = historical_simulation_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
-    if method == ValueAtRiskMethods.historical_simulation:
+    elif method == ValueAtRiskMethods.historical_simulation:
         var = linear_model_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
-    if method == ValueAtRiskMethods.historical_simulation:
+    elif method == ValueAtRiskMethods.historical_simulation:
         var = monte_carlo_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
+    else:
+        raise ValueError("Invalid method specified for VaR calculation.")
 
     return var
 
 
 def plot_hurst_eponent(intervals: list, data: list) -> float:
+    """
+    Plot the Hurst exponent on a log-log scale and calculate its value.
+
+    This function creates a log-log plot of the mean rescaled range against interval size and calculates the Hurst exponent
+    as the slope of the best-fit line.
+
+    Args:
+        intervals (list): List of interval sizes.
+        data (list): List of mean rescaled ranges corresponding to the interval sizes.
+
+    Returns:
+        float: The calculated Hurst exponent.
+        str: The base64-encoded PNG image of the plot.
+    """
     fig, ax = plt.subplots()
     plt.xscale("log")
     plt.yscale("log")
@@ -173,6 +275,32 @@ def plot_hurst_eponent(intervals: list, data: list) -> float:
 
 
 def calculate_hurst_exponent(data: pandas.DataFrame):
+    """
+    Calculate the Hurst exponent of a time series using log returns.
+
+    The Hurst exponent is a measure of the long-term memory of time series data.
+    Values of H close to 0.5 indicate a random walk, values less than 0.5 suggest mean reversion,
+    and values greater than 0.5 indicate trending behavior.
+
+    Args:
+        data (pandas.DataFrame): A dataframe containing historical price data with at least a 'close' column.
+
+    Returns:
+        float: The calculated Hurst exponent.
+        matplotlib.figure.Figure: The plot of log-log scale of average rescaled range vs. interval size.
+
+    Steps:
+        1. Calculate logarithmic returns of the 'close' prices.
+        2. Divide the log returns into intervals of increasing size.
+        3. For each interval, compute the mean-adjusted series.
+        4. Calculate the cumulative deviations from the mean (partial sums).
+        5. Compute the standard deviation for each interval.
+        6. Determine the range of the cumulative deviations.
+        7. Normalize the range by the standard deviation.
+        8. Compute the mean normalized range for each interval.
+        9. Repeat for all interval sizes.
+        10. Estimate the Hurst exponent as the slope of the log-log plot of the mean normalized range versus interval size.
+    """
     data = data["close"]
     # 1. logarytmiczna stopy zwrotu
     log_returns = calculate_log_returns(data)
