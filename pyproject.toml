@@ -25,6 +25,7 @@ dependencies = [
     "matplotlib==3.8.4",
     "keyring==25.1.0",
     "scipy==1.13.0",
+    "requests==2.31.0",
 ]
 
 [project.optional-dependencies]
