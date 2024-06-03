@@ -6,8 +6,9 @@ from typing_extensions import Annotated
 from enum import Enum
 
 from helpers.logger import logger
-from domain.command_handler import search_for_company_handler, draw_stock_graph_handler
+from domain.command_handler import search_for_company_handler, draw_stock_graph_handler, calculate_value_at_risk_handler
 from domain.plot_data import PlotTypes
+from domain.statistics import ValueAtRiskMethods
 from adapters.alpha_vantage_adapter import AlphaVantage
 
 
@@ -32,7 +33,7 @@ def store_api_key(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
-            help="Select stock data provider from avilable ones.",
+            help="Selected stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
 ):
@@ -61,7 +62,7 @@ def search_for_company(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
-            help="Select stock data provider from avilable ones.",
+            help="Selected stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
@@ -98,7 +99,7 @@ def draw_stock_graph(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
-            help="Select stock data provider from avilable ones.",
+            help="Selected stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
     plot_type: Annotated[
@@ -142,9 +143,50 @@ def value_at_risk(
             "--stock-data-provider",
             "-stp",
             case_sensitive=False,
-            help="Select stock data provider from avilable ones.",
+            help="Selected stock data provider from avilable ones.",
         ),
     ] = AvailableStockDataProviders.alpha_vantage,
+    method: Annotated[
+        ValueAtRiskMethods,
+        typer.Option(
+            "--method",
+            "-m",
+            case_sensitive=False,
+            help="Value at Risk calculation method.",
+        ),
+    ] = ValueAtRiskMethods.historical_simulation,
+    confidence_level: Annotated[
+        float,
+        typer.Option(
+            "--confidence-level",
+            "-cl",
+            help="Confidence level.",
+        ),
+    ] = 0.99,
+    portfolio_value: Annotated[
+        float,
+        typer.Option(
+            "--portfolio-value",
+            "-pv",
+            help="Portfolio value.",
+        ),
+    ] = 100,
+    historical_days: Annotated[
+        int,
+        typer.Option(
+            "--historical-days",
+            "-hd",
+            help="Number of historical days for statistic calculation.",
+        ),
+    ] = 200,
+    horizon_days: Annotated[
+        int,
+        typer.Option(
+            "--horizon-days",
+            "-hod",
+            help="Number of horizon days for statistic calculation.",
+        ),
+    ] = 1,
     debug: Annotated[bool, typer.Option(help="Switch logger debug mode.")] = False,
 ):
     """CLI command used to calculate Value at Risk for selected company.
@@ -152,11 +194,17 @@ def value_at_risk(
     Args:
         company_symbol (str): Company stock symbol.
         stock_data_provider (AvailableStockDataProviders): Stock data provider.
+        method (ValueAtRiskMethods): Value at Risk calculation method.
         debug (bool): Switch logging debug mode.
     """
     if debug:
         logger.setLevel(logging.DEBUG)
     logger.debug(f"Calculating value at risk for: {company_symbol}")
+
+    api_key: str = keyring.get_password(stock_data_provider.value, APP_NAME)
+    if stock_data_provider == AvailableStockDataProviders.alpha_vantage:
+        selected_stock_data_provider = AlphaVantage(auth_token=api_key)
+    calculate_value_at_risk_handler(selected_stock_data_provider, method)
 
 
 if __name__ == "__main__":

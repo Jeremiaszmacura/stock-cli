@@ -5,8 +5,15 @@ import pandas
 import base64
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from enum import Enum
 
 from helpers.logger import logger
+
+
+class ValueAtRiskMethods(str, Enum):
+    historical_simulation = "historical_simulation"
+    linear_model = "linear_model"
+    monte_carlo = "monte_carlo"
 
 
 def value_at_risk():
@@ -123,29 +130,24 @@ def monte_carlo_var(
 
 
 def calculate_value_at_risk(
-    var_type: str,
+    method: str,
     data: pandas.DataFrame,
     confidence_level: float,
     portfolio_value: int | float,
     historical_days: int,
     horizon_days: int,
-):
+) -> float:
     """Calcualte Value at Risk."""
     data = data["close"]
     returns = calculate_returns(data)
 
-    if var_type == "historical":
+    if method == ValueAtRiskMethods.historical_simulation:
         var = historical_simulation_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
-    if var_type == "linear_model":
+    if method == ValueAtRiskMethods.historical_simulation:
         var = linear_model_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
-    if var_type == "monte_carlo":
+    if method == ValueAtRiskMethods.historical_simulation:
         var = monte_carlo_var(returns, confidence_level, portfolio_value, historical_days, horizon_days)
 
-    res = "The VaR at the %.2f confidence level and portfolio value %.2f is %.2f" % (
-        confidence_level,
-        portfolio_value,
-        var,
-    )
     return var
 
 
