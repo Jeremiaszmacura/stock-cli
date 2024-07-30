@@ -1,18 +1,29 @@
 """Module contain abstract class for stock data provider."""
 
-from dataclasses import dataclass
+from abc import ABC, abstractmethod
 import pandas
 
 
-@dataclass
-class StockDataProvider:
+class StockDataProvider(ABC):
     """Stock data provider port."""
 
     auth_token: str
     company_symbol: str | None = None
     time_interval: str | None = None
-    company_data: pandas.DataFrame | None = None
 
+    @abstractmethod
+    def get_company_data(self) -> pandas.DataFrame:
+        """Property used to get and keep company stock data."""
+
+    @abstractmethod
+    def search_for_company(self, search_phrase: str) -> list[dict]:
+        """Method to search for company based on search phrase.
+
+        Args:
+            search_phrase (str): Phrase used to search for company.
+        """
+
+    @abstractmethod
     def _prepare_search_result_data(self, data: dict) -> list[dict]:
         """Method to prepare search result data to display it in a target format.
 
@@ -22,8 +33,8 @@ class StockDataProvider:
         Returns:
             list[dict]: Search result data in target format.
         """
-        pass
 
+    @abstractmethod
     def _prepare_data(self, data: bytes) -> pandas.DataFrame:
         """Method to prepare company's stock data for futher calculations.
 
@@ -33,16 +44,3 @@ class StockDataProvider:
         Returns:
             pandas.DataFrame: Company's stock data in target format.
         """
-        pass
-
-    def search_for_company(self, search_phrase: str) -> list[dict]:
-        """Method to search for company based on search phrase.
-
-        Args:
-            search_phrase (str): Phrase used to search for company.
-        """
-        pass
-
-    def get_company_data(self) -> pandas.DataFrame:
-        """Method used to get company stock data."""
-        pass

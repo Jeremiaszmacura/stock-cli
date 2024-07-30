@@ -9,7 +9,6 @@ runner = CliRunner()
 
 
 class TestSearchForCompany(unittest.TestCase):
-
     @patch("keyring.get_password")
     def test_search_for_company(self, get_password):
         get_password.return_value = MagicMock()
